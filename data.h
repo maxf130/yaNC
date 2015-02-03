@@ -3,6 +3,7 @@
 #include "particle.h"
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 /**
  * \brief The yaNC (yet another N-Body code) namespace.
@@ -56,7 +57,19 @@ namespace yaNC{
       /** 
        * \brief Provides non constant access to one of the particles
        */
-      virtual void setParticle(yaNC::Particle&)=0;
+      virtual yaNC::Particle&getParticle(int) =0;
+      /**
+       *\brief Gets time
+       */
+      virtual double getTime()=0;
+      /**
+       *\brief Increments time
+       */
+      virtual void incTime(double)=0;
+      /**
+       *\brief Gets the number of the particle
+       */
+      virtual const int getNumber() const=0;
     };
 
     /**
@@ -77,7 +90,7 @@ namespace yaNC{
       void read(std::istream&, int, int);
 
       const yaNC::Particle&getParticle(int) const;
-      void setParticle(yaNC::Particle&);
+      yaNC::Particle&getParticle(int);
 
       ~SnapshotSOA();
     };
@@ -90,18 +103,25 @@ namespace yaNC{
      * contains all relevant information about each particle.
      */
     class SnapshotAOS: public Snapshot{
+    private:
+      double time;
+      int number;
+      std::vector<Particle> particles;
     public:
       SnapshotAOS(int);
-
-      void write(std::ostream&) const;
+      inline double getTime(){return time;}
+      inline void incTime(double inc){time=time+inc;}
+      inline void write(std::ostream&o) const{return write(o, 0, number-1);}
       void write(std::ostream&, int, int) const;
-
-      void read(std::istream&);
+      
+      inline void read(std::istream&i){return read(i, 0, number-1);}
       void read(std::istream&, int, int);
-
-      const yaNC::Particle&getParticle(int) const;
-      void setParticle(yaNC::Particle&);
-
+      
+      inline const yaNC::Particle&getParticle(int n) const{return particles[n];}
+      inline yaNC::Particle&getParticle(int n){return particles[n];}
+      
+      inline const int getNumber() const{return number;}
+      
       ~SnapshotAOS();
     };
   }
