@@ -28,10 +28,10 @@ namespace yaNC{
     
     inline double getTime(){return time;}
     inline void incTime(double inc){time=time+inc;}
-    inline void write(std::ostream&o) const{return write(o, 0, number-1);}
+    inline void write(std::ostream&o) const{return write(o, 0, getNumber()-1);}
     void write(std::ostream&, int, int) const;
     
-    inline void read(std::istream&i){return read(i, 0, number-1);}
+    inline void read(std::istream&i){return read(i, 0, getNumber()-1);}
     void read(std::istream&, int, int);
     
     inline const yaNC::Particle&getParticle(int n) const{return particles[n];}
