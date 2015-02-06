@@ -24,7 +24,7 @@ namespace yaNC{
     double time;
     std::vector<Particle> particles;
   public:
-    SnapshotAOS(unsigned);
+    Snapshot(unsigned);
     
     inline double getTime(){return time;}
     inline void incTime(double inc){time=time+inc;}
@@ -39,7 +39,7 @@ namespace yaNC{
     
     inline const int getNumber() const{return particles.size();}
     
-    ~SnapshotAOS();
+    ~Snapshot();
   };
 }
 
