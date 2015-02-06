@@ -2,6 +2,10 @@
 #include <iostream>
 
 
-void yaNC::io::SnapshotAOS::write(std::ostream&o, int i, int f)const{
+void yaNC::Snapshot::write(std::ostream&o, int i, int f)const{
   o << number << 
+}
+
+void yaNC::Snapshot::read(std::istream&o, int i, int f) {
+  
 }
