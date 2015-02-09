@@ -31,8 +31,7 @@ namespace yaNC{
     inline void write(std::ostream&o) const{return write(o, 0, getNumber()-1);}
     void write(std::ostream&, int, int) const;
     
-    inline void read(std::istream&i){return read(i, 0, getNumber()-1);}
-    void read(std::istream&, int, int);
+    void read(std::istream&);
     
     inline const yaNC::Particle&getParticle(int n) const{return particles[n];}
     inline yaNC::Particle&getParticle(int n){return particles[n];}
