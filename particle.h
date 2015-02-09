@@ -93,6 +93,12 @@ namespace yaNC {
   struct Particle{
     double mass, pot;
     Point pos, vel, acc;
+
+    Particle() {
+      pos = yaNC::Point();
+      vel = yaNC::Point();
+      acc = yaNC::Point();
+    }
   };
 }
 

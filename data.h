@@ -38,7 +38,8 @@ namespace yaNC{
     inline yaNC::Particle&getParticle(int n){return particles[n];}
     
     inline const int getNumber() const{return particles.size();}
-    
+
+    inline void push_back(Particle&p){particles.push_back(p);}
     ~Snapshot();
   };
 }
