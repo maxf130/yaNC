@@ -10,7 +10,7 @@ data.o: data.h data.cc particle.h
 	c++ -c -std=c++11 data.cc
 
 propagate.o: propagate.cc propagate.h data.h particle.h
-	c++ -c -std=c++11 data.cc
+	c++ -c -std=c++11 propagate.cc
 
 clean:
 	rm data.o propagate.o write read
