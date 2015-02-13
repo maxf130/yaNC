@@ -3,6 +3,7 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 
 namespace yaNC {
   typedef std::array<double, 3> Point;
@@ -82,7 +83,11 @@ namespace yaNC {
 
   inline std::ostream&operator<<(std::ostream&out, Point const&x)
   {
-    return out << x[0] << ' ' << x[1] << ' ' << x[2]; 
+    auto w = out.width();
+    auto p = out.precision();
+    return out << std::setw(w) << std::setprecision(p) << x[0] << ' '
+	       << std::setw(w) << std::setprecision(p) << x[1] << ' '
+	       << std::setw(w) << std::setprecision(p) << x[2]; 
   }
 
   inline std::istream&operator>>(std::istream&in, Point&x)
