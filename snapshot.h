@@ -1,5 +1,5 @@
-#ifndef INC_DATA_H
-#define INC_DATA_H
+#ifndef INC_SNAPSHOT_H
+#define INC_SNAPSHOT_H
 #include "particle.h"
 #include <iostream>
 #include <fstream>

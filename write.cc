@@ -1,5 +1,5 @@
 #include "particle.h"
-#include "data.h"
+#include "snapshot.h"
 #include <iostream>
 #include <fstream>
 #include <cstdlib>

@@ -1,4 +1,4 @@
-#include "data.h"
+#include "snapshot.h"
 #include "particle.h"
 
 
