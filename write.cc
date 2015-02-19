@@ -7,7 +7,7 @@
 
 
 int main(){
-  int n = 10000;
+  int n = 1000;
   yaNC::Snapshot snapshot = yaNC::Snapshot(n);
 
   double mpos, mvel, macc, mmass, mpot;
