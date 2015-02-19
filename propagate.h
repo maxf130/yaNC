@@ -1,6 +1,6 @@
 #include "snapshot.h"
 #include "particle.h"
-#include <stringx>
+#include <string>
 
 
 namespace yaNC {
