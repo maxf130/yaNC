@@ -25,16 +25,18 @@ void yaNC::calcAccPot(yaNC::Snapshot& snap, double soft) {
 
 
       yaNC::Point dist = pi.pos - pj.pos; //3 FLOPS
-      double effDist_sqrt = std::sqrt(norm(dist) + soft*soft); //7 FLOPS
-      yaNC::Point acceli = pj.mass * dist / effDist_sqrt*effDist_sqrt*effDist_sqrt; //6FLOPS
+      double effDist_sqrt = 1./std::sqrt(norm(dist) + soft*soft); //7 FLOPS
+
+      yaNC::Point acceli =  dist * (pj.mass*effDist_sqrt*effDist_sqrt*effDist_sqrt); //6FLOPS
       yaNC::Point accelj = acceli * -1; //1 FLOP
-      double poti = pj.mass*pj.mass / effDist_sqrt;
-      double potj = pi.mass*pi.mass / effDist_sqrt;
+      double poti = pj.mass*pj.mass * effDist_sqrt; //2FLOPS
+      double potj = pi.mass*pi.mass * effDist_sqrt; //2FLOPS
       // Write accelerations to array
-      accelerations[i] += acceli;
-      accelerations[j] += accelj;
-      potentials[i] += poti;
-      potentials[j] += potj;
+      accelerations[i] += acceli; //3 FLOPS
+      accelerations[j] += accelj; //3 FLOPS
+      
+      potentials[i] += poti; //1FLOP
+      potentials[j] += potj; //1FLOP
     }
     // Accelerations now containts the accelerations of all particles <= i, can write to snap
     snap.getParticle(i).acc = accelerations[i] * -G;
