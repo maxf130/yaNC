@@ -8,40 +8,28 @@
  * /brief Calculates the acceleration and potentials on each particle, and writes this to each particle
  * /author Maximilian Friedersdorff
  */
-void yaNC::calcAccPot(yaNC::Snapshot& snap, double soft) {
-  const double G = 6.67e-11;
+void yaNC::calcAccPot(yaNC::Snapshot& snap, const double soft) {
+  const double softsq = soft*soft;
 
-  yaNC::Point accelerations [snap.getNumber()];
-  double potentials[snap.getNumber()];
+  //Reset gravity for every particle
+  for(auto&x:snap){
+    x.acc = {0.,0.,0.};
+    x.pot = 0.;
+  }
+  for(auto i = snap.begin();i != snap.end(); ++i){
+    for(auto j = i+1;j != snap.end();++j){
 
-  //Loop Structure
-  for (int i=0; i != snap.getNumber(); ++i){
-    //For every i, we want to loop over every j > i
-    for (int j=i+1; j != snap.getNumber(); j++ ){
-      // Calc acceleration of particle i on j, and j on i and potentials
-      yaNC::Particle&pi = snap.getParticle(i);
-      yaNC::Particle&pj = snap.getParticle(j);
+      yaNC::Point dist = i->pos - j->pos; //3
+      double reciprocal_eff_dist = 1./(norm(dist) + softsq); //7
+      double reciprocal_eff_dist_sq = std::sqrt(reciprocal_eff_dist); //1
 
+      yaNC::Point acc_mod_mass = dist*(reciprocal_eff_dist*reciprocal_eff_dist_sq); //4
+      i->acc -= acc_mod_mass * j->mass; //6
+      j->acc += acc_mod_mass * i->mass; //6
 
-
-      yaNC::Point dist = pi.pos - pj.pos; //3 FLOPS
-      double effDist_sqrt = 1./std::sqrt(norm(dist) + soft*soft); //7 FLOPS
-
-      yaNC::Point acceli =  dist * (pj.mass*effDist_sqrt*effDist_sqrt*effDist_sqrt); //6FLOPS
-      yaNC::Point accelj = acceli * -1; //1 FLOP
-      double poti = pj.mass*pj.mass * effDist_sqrt; //2FLOPS
-      double potj = pi.mass*pi.mass * effDist_sqrt; //2FLOPS
-      // Write accelerations to array
-      accelerations[i] += acceli; //3 FLOPS
-      accelerations[j] += accelj; //3 FLOPS
-      
-      potentials[i] += poti; //1FLOP
-      potentials[j] += potj; //1FLOP
+      i->pot -= j->mass*reciprocal_eff_dist_sq; //2
+      j->pot -= i->mass*reciprocal_eff_dist_sq; //2
     }
-    // Accelerations now containts the accelerations of all particles <= i, can write to snap
-    snap.getParticle(i).acc = accelerations[i] * -G;
-    // Similarly potentatials now contains the potential at <=i, can write to snap
-    snap.getParticle(i).pot = potentials[i] * -G;
   }
 }
 
@@ -49,18 +37,18 @@ void yaNC::calcAccPot(yaNC::Snapshot& snap, double soft) {
  * /brief Uses kick, drift, kick to advance the simulation by a time increment inc
  * /Author Maximilian Friedersdorff
  */
-void yaNC::propagate(yaNC::Snapshot&snap, double inc, double soft) {
-  for(int i = 0; i != snap.getNumber(); ++i){
-    yaNC::Particle&pi = snap.getParticle(i);
-    pi.vel += 0.5*inc*pi.acc;
-    pi.pos += inc*pi.vel;
+void yaNC::propagate(yaNC::Snapshot&snap, const double dt, double soft) {
+  const auto dth=0.5*dt;
+  for(auto&x:snap){
+    x.vel += dth*x.acc;
+    x.pos += dt*x.vel;
   }
-
+  snap.incTime(dt);
+  
   yaNC::calcAccPot(snap, soft);
   
-  for(int i=0;i != snap.getNumber(); ++i){
-    yaNC::Particle&pi = snap.getParticle(i);
-    pi.vel += 0.5*inc*pi.acc;
+  for(auto&x:snap){
+    x.vel += dth*x.acc;
   }
 }
 

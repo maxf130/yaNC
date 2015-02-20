@@ -24,21 +24,33 @@ namespace yaNC{
     double time;
     std::vector<Particle> particles;
   public:
+    typedef typename std::vector<Particle>::iterator iterator;
+    typedef typename std::vector<Particle>::const_iterator const_iterator;
     Snapshot(unsigned);
+
     
-    inline double getTime(){return time;}
-    inline void incTime(double inc){time=time+inc;}
-    inline void write(std::ostream&o) const{return write(o, 0, getNumber()-1);}
+    double getTime(){return time;}
+    void incTime(double inc){time=time+inc;}
+    void write(std::ostream&o) const{return write(o, 0, getNumber()-1);}
     void write(std::ostream&, int, int) const;
     
     void read(std::istream&);
     
-    inline const yaNC::Particle&getParticle(int n) const{return particles[n];}
-    inline yaNC::Particle&getParticle(int n){return particles[n];}
-    
-    inline const int getNumber() const{return particles.size();}
+    const yaNC::Particle&getParticle(int n) const{return particles[n];}
+    yaNC::Particle&getParticle(int n){return particles[n];}
 
-    inline void push_back(Particle&p){particles.push_back(p);}
+    iterator begin(){return particles.begin();}
+    iterator end(){return particles.end();}
+
+    const_iterator begin() const {return particles.begin();}
+    const_iterator end() const {return particles.end();}
+
+    const_iterator cbegin() const {return particles.cbegin();}
+    const_iterator cend() const {return particles.cend();}
+    
+    std::size_t getNumber() const{return particles.size();}
+
+    void push_back(Particle&p){particles.push_back(p);}
 
     ~Snapshot();
   };
