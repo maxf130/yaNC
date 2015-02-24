@@ -20,28 +20,47 @@ yaNC::Snapshot::Snapshot(unsigned n){
 yaNC::Snapshot::~Snapshot(){}
 
 
-void yaNC::Snapshot::write(std::ostream&o, int i, int f)const{
+void yaNC::Snapshot::write(std::ostream&o, std::string&format)const{
   const auto p = 8, w = p + 6;
   
-  auto end = std::chrono::system_clock::now();
-  auto end_time = std::chrono::system_clock::to_time_t(end);
+  auto time_point = std::chrono::system_clock::now();
+  auto now_c = std::chrono::system_clock::to_time_t(time_point);
 
   
   
   o << "#---------------------------------\n";
-  o << "#Date Printed=" << std::ctime(&end_time);
+  o << "#Date Printed=" << std::ctime(&now_c);
   o << "#N=" << getNumber() << '\n';
   o << "#t=" << time << '\n';
-  o << "#Format= PosX PosY PosZ VelX VelY VelZ AccX AccY AccZ Mass Pot\n";
+  o << "#Format=" << format << '\n';
   o << "#----------------------------------\n";
 
-  for(int j=i;j!=f; ++j){
+  for(auto i=begin();i!=end();++i){
     o.precision(p);
-    o << std::setw(w) << particles[j].pos << ' '
-      << std::setw(w) << particles[j].vel << ' '
-      << std::setw(w) << particles[j].acc << ' '
-      << std::setw(w) << particles[j].mass << ' '
-      << std::setw(w) << particles[j].pot << '\n' ;
+    for(char& c: format){
+      switch (c) {
+      case 'p':
+	o << std::setw(w) << i->pos;
+	break;
+      case 'v':
+	o << std::setw(w) << i->vel;
+	break;
+      case 'a':
+	o << std::setw(w) << i->acc;
+	break;
+      case 'm':
+	o << std::setw(w) << i->mass;
+	break;
+      case 'u':
+	o << std::setw(w) << i->pot;
+	break;
+      default:
+	//This should never happen!!!!!!!!!!!!!!!
+	break;
+      }
+      o << ' ';
+    }
+    o << '\n';
   }
   o.flush();
 }
@@ -50,35 +69,92 @@ void yaNC::Snapshot::write(std::ostream&o, int i, int f)const{
 void yaNC::Snapshot::read(std::istream&in) {
   std::string line;
 
+  int part_read = 0;
+
+  time = 0.;
+  std::string format;
+
+  
+  bool readn = false, readt = false, readf = false;
   while(std::getline(in, line)){
-
-    // Initialize time to a sensible value if not found in file.
-    time = 0.;
-
-    bool readn = 0, readt = 0;
-    if(!readn && line[0] == '#'){
-      // Find number of particles and reserve space if found.
-      auto idx = line.find("N=");
-      if (idx != -1){
-	auto N = std::stoul(line.substr(idx + 2));
-	//std::cerr << "Read N='" << line.substr(idx + 2) << "' = " << N << '\n';
-	particles.reserve(N);
-      }
-    } else if (!readt && line[0] == '#'){
-      // Find simulation time and set if found.
-      auto idx = line.find("t=");
-      if (idx != -1){
-	//std::cerr << "Read t='" << line.substr(idx + 2) << "'\n";
-	time = std::stod(line.substr(idx + 2));
+    
+    if(line[0] == '#'){
+      if (!readn){
+	auto idx = line.find("N=");
+	if (idx != -1){
+	  auto N = std::stoul(line.substr(idx + 2));
+	  particles.reserve(N);
+	  readn = true;
+	}
+      } else if (!readt) {
+	auto idx = line.find("t=");
+	if (idx != -1){
+	  time = std::stod(line.substr(idx + 2));
+	  readt = true;
+	}
+      } else if (!readf) {
+	auto idx = line.find("Format=");
+	if (idx != -1){
+	  format = line.substr(idx + 7);
+	  readf = true;
+	}
       }
     } else {
-      
-      yaNC::Particle particle;
-      
       std::istringstream ss(line);
-      ss >> particle.pos >> particle.vel >> particle.acc >> particle.mass >> particle.pot;
+      
+      if(part_read >= particles.size()){
+	yaNC::Particle particle;
+	
+	for(char& c:format){
+	  switch (c) {
+	  case 'p':  
+	    ss >> particle.pos;
+	    break;
+	  case 'v':
+	    ss >> particle.vel;
+	    break;
+	  case 'a':
+	    ss >> particle.acc;
+	    break;
+	  case 'm':
+	    ss >> particle.mass;
+	    break;
+	  case 'u':
+	    ss >> particle.pot;
+	    break;
+	  default:
+	    //This should never happen!!!!!!!!!!!!!!!
+	    break;
+	  }
+	}	
+	particles.push_back(particle);
+      } else {
+	yaNC::Particle&particle = particles[part_read];
 
-      particles.push_back(particle);
+	for(char& c:format){
+	  switch (c) {
+	  case 'p':
+	    ss >> particle.pos;
+	    break;
+	  case 'v':
+	    ss >> particle.vel;
+	    break;
+	  case 'a':
+	    ss >> particle.acc;
+	    break;
+	  case 'm':
+	    ss >> particle.mass;
+	    break;
+	  case 'u':
+	    ss >> particle.pot;
+	    break;
+	  default:
+	    //This should never happen!!!!!!!!!!!!!!!
+	    break;
+	  }
+	}
+      }
+      ++part_read;
     }
   }
   particles.shrink_to_fit();

@@ -7,38 +7,30 @@
 
 
 int main(){
-  int n = 1000;
+  unsigned n = 10;
   yaNC::Snapshot snapshot = yaNC::Snapshot(n);
+
 
   double mpos, mvel, macc, mmass, mpot;
   
   std::srand(std::time(0));
   for(int i = 0;i!=n;++i){
+
     
-    yaNC::Particle particle = yaNC::Particle();
+    yaNC::Particle&p = snapshot.getParticle(i);
 
-    particle.pos[0] = std::rand()/1e6;
-    particle.pos[1] = std::rand()/1e6;
-    particle.pos[2] = std::rand()/1e6;
+    p.pos = {std::rand()/1e6, std::rand()/1e6, std::rand()/1e6};
+    p.vel = {std::rand()/1e6, std::rand()/1e6, std::rand()/1e6};
+    p.acc = {std::rand()/1e6, std::rand()/1e6, std::rand()/1e6};
 
-    particle.vel[0] = std::rand()/1e6;
-    particle.vel[1] = std::rand()/1e6;
-    particle.vel[2] = std::rand()/1e6;
+    p.mass = std::rand()/1e6;
+    p.pot = std::rand()/1e6;
 
-    particle.acc[0] = std::rand()/1e6;
-    particle.acc[1] = std::rand()/1e6;
-    particle.acc[2] = std::rand()/1e6;
-
-    particle.mass = std::rand()/1e6;
-    particle.pot = std::rand()/1e6;
-
-    snapshot.push_back(particle);
-
-    mpos += yaNC::abs(particle.pos);
-    mvel += yaNC::abs(particle.vel);
-    macc += yaNC::abs(particle.acc);
-    mmass += particle.mass;
-    mpot += particle.pot;
+    mpos += yaNC::abs(p.pos);
+    mvel += yaNC::abs(p.vel);
+    macc += yaNC::abs(p.acc);
+    mmass += p.mass;
+    mpot += p.pot;
   }
 
   std::cout << "Mean Pos: " << mpos/n << '\n';

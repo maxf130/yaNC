@@ -31,8 +31,11 @@ namespace yaNC{
     
     double getTime(){return time;}
     void incTime(double inc){time=time+inc;}
-    void write(std::ostream&o) const{return write(o, 0, getNumber()-1);}
-    void write(std::ostream&, int, int) const;
+    void write(std::ostream&, std::string&) const;
+    void write(std::ostream&o){
+      std::string format = "pvamu";
+      write(o, format);
+    }
     
     void read(std::istream&);
     
