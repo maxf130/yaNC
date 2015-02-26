@@ -120,13 +120,12 @@ int main(int argc, char*argv[]) {
     return 2;
   }
   //File is good.  Read into snapshot
-  yaNC::Snapshot snapshot(1);
+  yaNC::Snapshot snapshot(0);
   snapshot.read(input);
 
 
   //Perform propagation
   for(int i=0; i!=iter; ++i){
-    std::cout<< "Performing iteration no: " << i << std::endl;
     propagate(snapshot, inc, soft);
 
     //If i is multiple of printIter, print out the result
@@ -136,4 +135,7 @@ int main(int argc, char*argv[]) {
       output.close();
     }
   }
+  std::ofstream output(out + "_final.dat");
+  snapshot.write(output);
+  output.close();
 }
