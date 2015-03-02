@@ -1,14 +1,12 @@
 #include "snapshot.h"
 #include "particle.h"
 #include <string>
+#include <unordered_map>
 
 
 namespace yaNC {
-
-  void calcAccPot(yaNC::Snapshot&, double);
-  void calcAcc(yaNC::Snapshot&, double);
-  void propagate(yaNC::Snapshot&, double, double);
   std::string getUsage();
+  std::unordered_map<std::string, std::string> getOptions(std::istream&);
 }
 
 

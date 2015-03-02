@@ -1,74 +1,14 @@
 #include "propagate.h"
+#include "integrator.h"
 #include "snapshot.h"
 #include "particle.h"
 #include <iostream>
+#include <unordered_map>
+#include <string>
+#include <sstream>
+#include <typeinfo>
 
 
-/**
- * /brief Calculates the acceleration and potentials on each particle, and writes this to each particle
- * /author Maximilian Friedersdorff
- */
-void yaNC::calcAccPot(yaNC::Snapshot& snap, const double soft) {
-  const double softsq = soft*soft;
-
-  //Reset gravity for every particle
-  for(auto&x:snap){
-    x.acc = {0.,0.,0.};
-    x.pot = 0.;
-  }
-  for(auto i = snap.begin();i != snap.end(); ++i){
-    for(auto j = i+1;j != snap.end();++j){
-
-      auto x = i->pos - j->pos; //3
-      auto q = 1./(norm(x) + softsq); //7
-      auto p = std::sqrt(q); //1
-      q *= p;
-      x *= q;
-
-      i->acc -= x * j->mass; //6
-      j->acc += x * i->mass; //6
-
-      i->pot -= j->mass*p; //2
-      j->pot -= i->mass*p; //2
-    }
-  }
-}
-
-/**
- * /brief Uses kick, drift, kick to advance the simulation by a time increment inc
- * /Author Maximilian Friedersdorff
- */
-void yaNC::propagate(yaNC::Snapshot&snap, const double dt, double soft) {
-  const auto dth=0.5*dt;
-  for(auto&x:snap){
-    x.vel += dth*x.acc;
-    x.pos += dt*x.vel;
-  }
-  snap.incTime(dt);
-  
-  yaNC::calcAccPot(snap, soft);
-  
-  for(auto&x:snap){
-    x.vel += dth*x.acc;
-  }
-}
-
-
-
-std::string yaNC::getUsage(){
-  std::string returnValue = "Usage: propagate PARAMETERS... INPUT OUTPUT \n"
-    "\n"
-    "Parameters: \n"
-    "    -n        The number of iterations to run \n"
-    "    -t        The time increment per iteration.  Should be a float of form XeY, where X and Y are"
-        " integers \n"
-    "    -p        The number of iterations between printing the current state to file \n"
-    "    -s        The softening length.  Should be greater than 1"
-    "\n"
-    "INPUT is the file from which to read the initial state.  OUTPUT is the pattern that \n"
-    "the output file should take.  The file extention should not be included.";
-  return returnValue;
-}
 
 
 
@@ -80,38 +20,75 @@ int main(int argc, char*argv[]) {
   std::string in, out;
 
   //Check for correct number of arguments (every parameter must be set explicitly)
-  if(argc != 11){
+  if(argc != 2){
     std::cout << yaNC::getUsage() << std::endl;
     return 2;
   }
-  for(int i=1;i!=argc;++i){
-    std::string argument(argv[i]);
 
-    if (i == argc -2){
-      // This should be the input file for the propagator
-      in = std::string(argv[i]);
-    } else if (i == argc -1){
-      // This should be the output pattern for the propagator
-      out = std::string(argv[i]);
-    } else if (argument == "-n"){
-      iter = std::stoul(argv[++i]);
-    } else if (argument == "-t"){
-      inc = std::stod(argv[++i]);
-    } else if (argument == "-p"){
-      printIter = std::stoul(argv[++i]);
-    } else if (argument == "-s"){
-      soft = std::stod(argv[++i]);
-      if (soft < 0){
-	std::cout << "The softening length must be greater than 0 \n\n" << yaNC::getUsage() << std::endl;
-      }
-    }
+  std::ifstream optsInput(argv[1]);
+  std::unordered_map<std::string, std::string> opts = yaNC::getOptions(optsInput);
+  optsInput.close();
+
+  auto value = opts.end();
+  bool failed;
+  std::string failure;
+
+
+  value = opts.find("iterations");
+  if(value != opts.end()){
+    iter = std::stoul(std::get<1>(*value));
+  } else {
+    failed = true;
+    failure += "'iterations' not specified. \n";
   }
-  std::cout << "Arguments given: \n"
-	    << " Number of iterations: " << iter << '\n'
-	    << " Number of iterations between printing: " << printIter << '\n'
-	    << " Time increment: " << inc << '\n'
-	    << " Softening length: " << soft << '\n'
-	    << " Input, output file pattern: " << in << ", " << out << std::endl;
+
+  value = opts.find("print_interval");
+  if(value != opts.end()){
+    printIter = std::stoul(std::get<1>(*value));
+  } else {
+    failed = true;
+    failure += "'print_interval' not specified. \n";
+  }
+
+  value = opts.find("time_increment");
+  if(value != opts.end()){
+    printIter = std::stod(std::get<1>(*value));
+  } else {
+    failed = true;
+    failure += "'time_increment' not specified. \n";
+  }
+
+  value = opts.find("softening_length");
+  if(value != opts.end()){
+    soft = std::stod(std::get<1>(*value));
+  } else {
+    failed = true;
+    failure += "'softening_length' no specified. \n";
+  }
+
+  value = opts.find("input_file");
+  if(value != opts.end()){
+    in = std::get<1>(*value); 
+  } else {
+    failed = true;
+    failure += "'input_file' not specified. \n";
+  }
+
+  value = opts.find("output_pattern");
+  if(value != opts.end()){
+    out = std::get<1>(*value); 
+  } else {
+    failed = true;
+    failure += "'output_pattern' not specified. \n";
+  }
+  
+  if(failed){
+    std::cout << failure;
+    std::cout.flush();
+    return 2;
+  }
+
+  
 
   //Check that input file exists.
   std::ifstream input(in);
@@ -139,4 +116,47 @@ int main(int argc, char*argv[]) {
   std::ofstream output(out + "_final.dat");
   snapshot.write(output);
   output.close();
+}
+
+
+
+
+
+std::string yaNC::getUsage(){
+  std::string returnValue = "Usage: propagate PARAMETERS... INPUT OUTPUT \n"
+    "\n"
+    "Parameters: \n"
+    "    -n        The number of iterations to run \n"
+    "    -t        The time increment per iteration.  Should be a float of form XeY, where X and Y are"
+        " integers \n"
+    "    -p        The number of iterations between printing the current state to file \n"
+    "    -s        The softening length.  Should be greater than 1"
+    "\n"
+    "INPUT is the file from which to read the initial state.  OUTPUT is the pattern that \n"
+    "the output file should take.  The file extention should not be included.";
+  return returnValue;
+}
+
+
+
+std::unordered_map<std::string, std::string> yaNC::getOptions(std::istream& in){
+  std::string line;
+  std::unordered_map<std::string, std::string> opts;
+  
+  while(std::getline(in, line)){
+    if(line[0] == '#'){
+      continue;
+    }
+    int idx = line.find("=");
+    if (idx == -1){
+      continue;
+    }
+    line.replace(idx, 1, " ");
+    std::istringstream ss(line);
+
+    std::string key,value;
+    ss >> key >> value;
+    opts.emplace(key, value);
+  }
+  return opts;
 }

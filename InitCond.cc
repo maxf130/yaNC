@@ -28,7 +28,7 @@ int main()
    yaNC::Snapshot snap(number);
    for(auto& part:snap) //For each particle calculate Position and Velocity
    {
-     part->mass=m;
+     part.mass=m;
      
      
      // Radius Calculation
@@ -43,14 +43,14 @@ int main()
      double pphi = 2*pi*dis(gen); // Random Uniform Phi [0,2pi]
      double pcostheta =2*dis(gen)-1; // Random Uniform Cos(theta)[-1,1]
      double psintheta = sqrt(1-pcostheta*pcostheta);
-     part -> pos={radius*psintheta*cos(pphi),//Spherical to Cartesian X
+     part.pos={radius*psintheta*cos(pphi),//Spherical to Cartesian X
 		  radius*psintheta*sin(pphi),//Spherical to Cartesian Y
 		  radius*pcostheta };        //Spherical to Cartesian Z
 
      
      // Escape Velocity Calculation
      double psi = 1/sqrt(x*x+1);
-     double vescsq = psi+psi
+     double vescsq = psi+psi;
      double vesc = sqrt(vescsq);
      
      double f0 = pow(vesc,7);
@@ -64,7 +64,7 @@ int main()
      double vphi = 2*pi*dis(gen);
      double vcostheta = 2*dis(gen)-1;
      double vsintheta = sqrt(1-vcostheta*vcostheta);
-     part -> vel={vel*vsintheta*cos(vphi),//Spherical to Cartesian X
+     part.vel={vel*vsintheta*cos(vphi),//Spherical to Cartesian X
 		  vel*vsintheta*sin(vphi),//Spherical to Cartesian Y
 		  vel*vcostheta };        //Spherical to Cartesian Z
           

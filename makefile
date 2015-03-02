@@ -12,8 +12,11 @@ write: write.cc snapshot.o
 snapshot.o: snapshot.h snapshot.cc particle.h
 	c++ -c -std=c++11 snapshot.cc
 
-propagate: propagate.cc propagate.h snapshot.o snapshot.h  particle.h
-	c++ -o propagate -std=c++11 propagate.cc snapshot.o
+integrator.o: snapshot.h integrator.h integrator.cc
+	c++ -c -std=c++11 integrator.cc
+
+propagate: propagate.cc propagate.h snapshot.o snapshot.h particle.h integrator.o
+	c++ -o propagate -std=c++11 propagate.cc snapshot.o integrator.o
 
 clean:
 	rm snapshot.o propagate write read InitCond
