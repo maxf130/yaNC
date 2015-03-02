@@ -19,16 +19,17 @@ void yaNC::calcAccPot(yaNC::Snapshot& snap, const double soft) {
   for(auto i = snap.begin();i != snap.end(); ++i){
     for(auto j = i+1;j != snap.end();++j){
 
-      yaNC::Point dist = i->pos - j->pos; //3
-      double reciprocal_eff_dist = 1./(norm(dist) + softsq); //7
-      double reciprocal_eff_dist_sq = std::sqrt(reciprocal_eff_dist); //1
+      auto x = i->pos - j->pos; //3
+      auto q = 1./(norm(x) + softsq); //7
+      auto p = std::sqrt(q); //1
+      q *= p;
+      x *= q;
 
-      yaNC::Point acc_mod_mass = dist*(reciprocal_eff_dist*reciprocal_eff_dist_sq); //4
-      i->acc -= acc_mod_mass * j->mass; //6
-      j->acc += acc_mod_mass * i->mass; //6
+      i->acc -= x * j->mass; //6
+      j->acc += x * i->mass; //6
 
-      i->pot -= j->mass*reciprocal_eff_dist_sq; //2
-      j->pot -= i->mass*reciprocal_eff_dist_sq; //2
+      i->pot -= j->mass*p; //2
+      j->pot -= i->mass*p; //2
     }
   }
 }
