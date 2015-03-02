@@ -55,6 +55,11 @@ namespace yaNC{
 
     void push_back(Particle&p){particles.push_back(p);}
 
+    double kineticEnergy() const;
+    double potentialEnergy() const;
+    double momentum() const;
+    double angularMomentum() const;
+
     ~Snapshot();
   };
 }

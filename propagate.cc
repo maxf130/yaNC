@@ -6,7 +6,8 @@
 #include <unordered_map>
 #include <string>
 #include <sstream>
-#include <typeinfo>
+#include <chrono>
+#include <ctime>
 
 
 
@@ -30,7 +31,7 @@ int main(int argc, char*argv[]) {
   optsInput.close();
 
   auto value = opts.end();
-  bool failed;
+  bool failed = false;
   std::string failure;
 
 
@@ -52,7 +53,7 @@ int main(int argc, char*argv[]) {
 
   value = opts.find("time_increment");
   if(value != opts.end()){
-    printIter = std::stod(std::get<1>(*value));
+    inc = std::stod(std::get<1>(*value));
   } else {
     failed = true;
     failure += "'time_increment' not specified. \n";
@@ -68,7 +69,7 @@ int main(int argc, char*argv[]) {
 
   value = opts.find("input_file");
   if(value != opts.end()){
-    in = std::get<1>(*value); 
+    in = std::get<1>(*value);
   } else {
     failed = true;
     failure += "'input_file' not specified. \n";
@@ -76,7 +77,7 @@ int main(int argc, char*argv[]) {
 
   value = opts.find("output_pattern");
   if(value != opts.end()){
-    out = std::get<1>(*value); 
+    out = std::get<1>(*value);
   } else {
     failed = true;
     failure += "'output_pattern' not specified. \n";
@@ -88,7 +89,6 @@ int main(int argc, char*argv[]) {
     return 2;
   }
 
-  
 
   //Check that input file exists.
   std::ifstream input(in);
@@ -100,8 +100,10 @@ int main(int argc, char*argv[]) {
   //File is good.  Read into snapshot
   yaNC::Snapshot snapshot(0);
   snapshot.read(input);
+  input.close();
 
-
+  std::ofstream logstream("test.log");
+  
   //Perform propagation
   for(int i=0; i!=iter; ++i){
     propagate(snapshot, inc, soft);
@@ -112,14 +114,12 @@ int main(int argc, char*argv[]) {
       snapshot.write(output);
       output.close();
     }
+    yaNC::writeLog(logstream, snapshot, 1, 1);
   }
   std::ofstream output(out + "_final.dat");
   snapshot.write(output);
   output.close();
 }
-
-
-
 
 
 std::string yaNC::getUsage(){
@@ -136,7 +136,6 @@ std::string yaNC::getUsage(){
     "the output file should take.  The file extention should not be included.";
   return returnValue;
 }
-
 
 
 std::unordered_map<std::string, std::string> yaNC::getOptions(std::istream& in){
@@ -159,4 +158,21 @@ std::unordered_map<std::string, std::string> yaNC::getOptions(std::istream& in){
     opts.emplace(key, value);
   }
   return opts;
+}
+
+void yaNC::writeLog(std::ostream&out, const yaNC::Snapshot&snap, double ttot, double t){
+  auto time_point = std::chrono::system_clock::now();
+  auto now_c = std::chrono::system_clock::to_time_t(time_point);
+  std::string time(std::ctime(&now_c));
+  time = time.substr(0, time.length() -1);
+
+  out << time << ' '
+      << snap.kineticEnergy()+snap.potentialEnergy() << ' '
+      << snap.kineticEnergy() << ' '
+      << snap.potentialEnergy() << ' '
+      << -2*snap.kineticEnergy()/snap.potentialEnergy() << ' '
+      << snap.momentum() << ' '
+      << snap.angularMomentum() << ' '
+      << t << ' '
+      << ttot << std::endl;
 }

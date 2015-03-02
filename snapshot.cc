@@ -159,3 +159,35 @@ void yaNC::Snapshot::read(std::istream&in) {
   }
   particles.shrink_to_fit();
 }
+
+double yaNC::Snapshot::kineticEnergy() const{
+  double total;
+  for(auto&p:particles){
+    total += p.mass*abs(p.vel);
+  }
+  return total*0.5;
+}
+
+double yaNC::Snapshot::potentialEnergy() const{
+  double total;
+  for(auto&p:particles){
+    total += p.pot*p.mass;
+  }
+  return total;
+}
+
+double yaNC::Snapshot::momentum() const{
+  yaNC::Point total;
+  for(auto&p:particles){
+    total += p.mass*p.vel;
+  }
+  return abs(total);
+}
+
+double yaNC::Snapshot::angularMomentum() const{
+  yaNC::Point total;
+  for(auto&p:particles){
+    total += cross(p.pos, p.mass*p.vel);
+  }
+  return abs(total);
+}

@@ -7,6 +7,7 @@
 namespace yaNC {
   std::string getUsage();
   std::unordered_map<std::string, std::string> getOptions(std::istream&);
+  void writeLog(std::ostream&, const  yaNC::Snapshot&, double, double);
 }
 
 
