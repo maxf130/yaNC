@@ -19,4 +19,4 @@ propagate: propagate.cc propagate.h snapshot.o snapshot.h particle.h integrator.
 	c++ -o propagate -std=c++11 propagate.cc snapshot.o integrator.o
 
 clean:
-	rm snapshot.o integrator.o propagate write read InitCond
+	rm snapshot.o integrator.o propagate write read InitCond test*
