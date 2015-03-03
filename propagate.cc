@@ -18,7 +18,7 @@ int main(int argc, char*argv[]) {
   int iter;
   int printIter;
   double inc, soft;
-  std::string in, out;
+  std::string in, out, format_end, format, log;
 
   //Check for correct number of arguments (every parameter must be set explicitly)
   if(argc != 2){
@@ -82,6 +82,34 @@ int main(int argc, char*argv[]) {
     failed = true;
     failure += "'output_pattern' not specified. \n";
   }
+
+  value = opts.find("print_format_end");
+  if(value != opts.end()){
+    format_end = std::get<1>(*value);
+  } else {
+    failed = true;
+    failure += "'print_format_end' not specified. \n";
+  }
+
+  value = opts.find("print_format");
+  if(value != opts.end()){
+    format = std::get<1>(*value);
+  } else {
+    failed = true;
+    failure += "'print_format' not specified. \n";
+  }
+
+
+  value = opts.find("log");
+  if(value != opts.end()){
+    log = std::get<1>(*value);
+  } else {
+    failed = true;
+    failure += "'log' not specified. \n";
+  }
+
+  
+
   
   if(failed){
     std::cout << failure;
@@ -102,22 +130,25 @@ int main(int argc, char*argv[]) {
   snapshot.read(input);
   input.close();
 
-  std::ofstream logstream("test.log");
-  
+  std::ofstream logstream(log);
+
+  std::clock_t begin = std::clock();
   //Perform propagation
   for(int i=0; i!=iter; ++i){
+    std::clock_t start = std::clock();
     propagate(snapshot, inc, soft);
 
     //If i is multiple of printIter, print out the result
     if(i%printIter == 0){
       std::ofstream output(out + std::to_string(i/printIter) + ".dat");
-      snapshot.write(output);
+      snapshot.write(output, format);
       output.close();
     }
-    yaNC::writeLog(logstream, snapshot, 1, 1);
+    std::clock_t end = std::clock();
+    yaNC::writeLog(logstream, snapshot, end-start, end-begin);
   }
   std::ofstream output(out + "_final.dat");
-  snapshot.write(output);
+  snapshot.write(output, format_end);
   output.close();
 }
 
