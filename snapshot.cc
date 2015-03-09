@@ -12,7 +12,7 @@ yaNC::Snapshot::Snapshot(unsigned n){
   time = 0;
   particles = std::vector<yaNC::Particle>();
   particles.reserve(n);
-  for (int i = 0; i != n;++i){
+  for (unsigned i = 0; i != n;++i){
     particles.push_back(yaNC::Particle());
   }
 }
@@ -69,7 +69,7 @@ void yaNC::Snapshot::write(std::ostream&o, std::string&format)const{
 void yaNC::Snapshot::read(std::istream&in) {
   std::string line;
 
-  int part_read = 0;
+  unsigned part_read = 0;
 
   time = 0.;
   std::string format;
@@ -81,20 +81,20 @@ void yaNC::Snapshot::read(std::istream&in) {
     if(line[0] == '#'){
       if (!readn){
 	auto idx = line.find("N=");
-	if (idx != -1){
+	if (idx != std::string::npos){
 	  auto N = std::stoul(line.substr(idx + 2));
 	  particles.reserve(N);
 	  readn = true;
 	}
       } else if (!readt) {
 	auto idx = line.find("t=");
-	if (idx != -1){
+	if (idx != std::string::npos){
 	  time = std::stod(line.substr(idx + 2));
 	  readt = true;
 	}
       } else if (!readf) {
 	auto idx = line.find("Format=");
-	if (idx != -1){
+	if (idx != std::string::npos){
 	  format = line.substr(idx + 7);
 	  readf = true;
 	}
@@ -161,23 +161,23 @@ void yaNC::Snapshot::read(std::istream&in) {
 }
 
 double yaNC::Snapshot::kineticEnergy() const{
-  double total;
-  for(auto&p:particles){
-    total += p.mass*abs(p.vel);
+  double total = 0;
+  for(auto const p:particles){
+    total += p.mass*norm(p.vel);
   }
   return total*0.5;
 }
 
 double yaNC::Snapshot::potentialEnergy() const{
-  double total;
+  double total = 0;
   for(auto&p:particles){
     total += p.pot*p.mass;
   }
-  return total;
+  return total*0.5;
 }
 
 double yaNC::Snapshot::momentum() const{
-  yaNC::Point total;
+  yaNC::Point total = {0,0,0};
   for(auto&p:particles){
     total += p.mass*p.vel;
   }
@@ -185,9 +185,18 @@ double yaNC::Snapshot::momentum() const{
 }
 
 double yaNC::Snapshot::angularMomentum() const{
-  yaNC::Point total;
+  yaNC::Point total = {0,0,0};
   for(auto&p:particles){
     total += cross(p.pos, p.mass*p.vel);
   }
   return abs(total);
+}
+
+
+double yaNC::Snapshot::virial() const {
+  double total = 0;
+  for(auto const p:particles){
+    total += p.mass*dot(p.pos, p.acc);
+  }
+  return total;
 }

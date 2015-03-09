@@ -12,7 +12,7 @@ int main() {
 
 
   double mpos, mvel, macc, mmass, mpot;
-  for(int i =0; i!= snapshot.getNumber(); ++i){
+  for(unsigned i =0; i!= snapshot.getNumber(); ++i){
     const yaNC::Particle& particle = snapshot.getParticle(i);
     mpos += yaNC::abs(particle.pos);
     mvel += yaNC::abs(particle.vel);

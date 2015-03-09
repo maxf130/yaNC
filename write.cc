@@ -14,7 +14,7 @@ int main(){
   double mpos, mvel, macc, mmass, mpot;
   
   std::srand(std::time(0));
-  for(int i = 0;i!=n;++i){
+  for(unsigned i = 0;i!=n;++i){
 
     
     yaNC::Particle&p = snapshot.getParticle(i);

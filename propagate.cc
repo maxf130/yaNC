@@ -131,7 +131,9 @@ int main(int argc, char*argv[]) {
   input.close();
 
   std::ofstream logstream(log);
+  logstream << "#SimTime Energe Kinectic Potential Virial VirialRatio Momentum AngularMomentum CPUTime TotalCPUTime"  << '\n';
 
+  
   std::clock_t begin = std::clock();
   //Perform propagation
   for(int i=0; i!=iter; ++i){
@@ -192,18 +194,23 @@ std::unordered_map<std::string, std::string> yaNC::getOptions(std::istream& in){
 }
 
 void yaNC::writeLog(std::ostream&out, const yaNC::Snapshot&snap, double ttot, double t){
-  auto time_point = std::chrono::system_clock::now();
-  auto now_c = std::chrono::system_clock::to_time_t(time_point);
-  std::string time(std::ctime(&now_c));
-  time = time.substr(0, time.length() -1);
+  double p = 8;
+  double w = p + 6;
 
-  out << time << ' '
-      << snap.kineticEnergy()+snap.potentialEnergy() << ' '
-      << snap.kineticEnergy() << ' '
-      << snap.potentialEnergy() << ' '
-      << -2*snap.kineticEnergy()/snap.potentialEnergy() << ' '
-      << snap.momentum() << ' '
-      << snap.angularMomentum() << ' '
-      << t << ' '
-      << ttot << std::endl;
+  
+  //Write header
+  
+
+  out << std::setprecision(p);
+  const auto T = snap.kineticEnergy(), W = snap.virial(), V = snap.potentialEnergy();
+  out << std::setw(w) << snap.getTime() << ' '
+      << std::setw(w) << (T+V) << ' '
+      << std::setw(w) << T << ' '
+      << std::setw(w) << V << ' '
+      << std::setw(w) << W << ' '
+      << std::setw(w) << (-2*T/W) << ' '
+      << std::setw(w) << snap.momentum() << ' '
+      << std::setw(w) << snap.angularMomentum() << ' '
+      << std::setw(w) << t << ' '
+      << std::setw(w) << ttot << std::endl;
 }

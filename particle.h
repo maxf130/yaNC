@@ -60,6 +60,10 @@ namespace yaNC {
     return Point({x[1]*y[2] - x[2]*y[1], x[2]*y[0] - x[0]*y[2], x[0]*y[1] - x[1]*y[0]});
   }
 
+  inline double dot(Point const&x, Point const&y){
+    return x[0]*y[0] + x[1]*y[1] + x[2]*y[2];
+  }
+
   inline Point operator/ (Point const&x, double y)
   {
     return x * (1/y);

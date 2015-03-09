@@ -29,7 +29,7 @@ namespace yaNC{
     Snapshot(unsigned);
 
     
-    double getTime(){return time;}
+    double getTime() const {return time;}
     void incTime(double inc){time=time+inc;}
     void write(std::ostream&, std::string&) const;
     void write(std::ostream&o){
@@ -59,7 +59,8 @@ namespace yaNC{
     double potentialEnergy() const;
     double momentum() const;
     double angularMomentum() const;
-
+    double virial() const;
+    
     ~Snapshot();
   };
 }
