@@ -36,6 +36,10 @@ namespace yaNC {
     return x *= 1/y;
   }
 
+  inline Point operator/ (Point const&x, Point const&y){
+    return{x[0] / y[0], x[1] / y[1], x[2] / y[2]};
+  }
+
   inline Point operator+ (Point const&x, Point const&y)
   {
     return {x[0] + y[0], x[1] + y[1], x[2] + y[2]};

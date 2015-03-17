@@ -1,4 +1,4 @@
-all: write read propagate InitCond
+all: write read propagate InitCond test
 
 InitCond: InitCond.cc snapshot.o snapshot.h particle.h
 	c++ -o InitCond -std=c++11 InitCond.cc snapshot.o -Wall -pedantic
@@ -18,5 +18,8 @@ integrator.o: snapshot.h integrator.h integrator.cc
 propagate: propagate.cc propagate.h snapshot.o snapshot.h particle.h integrator.o
 	c++ -o propagate -std=c++11 propagate.cc snapshot.o integrator.o -Wall -pedantic
 
+test: test.h test.cc snapshot.o particle.h integrator.o
+	c++ -o test -std=c++11 test.cc snapshot.o integrator.o -Wall -pedantic
+
 clean:
-	rm snapshot.o integrator.o propagate write read InitCond test*
+	rm snapshot.o integrator.o propagate write read InitCond test

@@ -27,7 +27,12 @@ namespace yaNC{
     typedef typename std::vector<Particle>::iterator iterator;
     typedef typename std::vector<Particle>::const_iterator const_iterator;
     Snapshot(unsigned);
+    Snapshot(const Snapshot&);
 
+    void swap(Snapshot&first, Snapshot&second){
+      std::swap(first.time, second.time);
+      std::swap(first.particles, second.particles);
+    }
     
     double getTime() const {return time;}
     void incTime(double inc){time=time+inc;}
@@ -60,6 +65,8 @@ namespace yaNC{
     double momentum() const;
     double angularMomentum() const;
     double virial() const;
+
+    Snapshot& operator=(Snapshot&);
     
     ~Snapshot();
   };

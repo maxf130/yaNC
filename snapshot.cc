@@ -17,7 +17,18 @@ yaNC::Snapshot::Snapshot(unsigned n){
   }
 }
 
-yaNC::Snapshot::~Snapshot(){}
+yaNC::Snapshot::Snapshot(const Snapshot&snap){
+  time = snap.time;
+  particles = snap.particles;
+}
+
+yaNC::Snapshot& yaNC::Snapshot::operator=(yaNC::Snapshot&other){
+  swap(*this, other);
+  return *this;
+}
+
+yaNC::Snapshot::~Snapshot(){
+}
 
 
 void yaNC::Snapshot::write(std::ostream&o, std::string&format)const{
