@@ -32,7 +32,7 @@ yaNC::Snapshot::~Snapshot(){
 
 
 void yaNC::Snapshot::write(std::ostream&o, std::string&format)const{
-  const auto p = 8, w = p + 6;
+  const auto p = 8;
   
   auto time_point = std::chrono::system_clock::now();
   auto now_c = std::chrono::system_clock::to_time_t(time_point);
@@ -51,19 +51,19 @@ void yaNC::Snapshot::write(std::ostream&o, std::string&format)const{
     for(char& c: format){
       switch (c) {
       case 'p':
-	o << std::setw(w) << i->pos;
+	o << i->pos;
 	break;
       case 'v':
-	o << std::setw(w) << i->vel;
+	o << i->vel;
 	break;
       case 'a':
-	o << std::setw(w) << i->acc;
+	o << i->acc;
 	break;
       case 'm':
-	o << std::setw(w) << i->mass;
+	o << i->mass;
 	break;
       case 'u':
-	o << std::setw(w) << i->pot;
+	o << i->pot;
 	break;
       default:
 	//This should never happen!!!!!!!!!!!!!!!

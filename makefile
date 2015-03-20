@@ -15,11 +15,14 @@ snapshot.o: snapshot.h snapshot.cc particle.h
 integrator.o: snapshot.h integrator.h integrator.cc
 	c++ -c -std=c++11 integrator.cc -Wall -pedantic
 
-propagate: propagate.cc propagate.h snapshot.o snapshot.h particle.h integrator.o
-	c++ -o propagate -std=c++11 propagate.cc snapshot.o integrator.o -Wall -pedantic
+propagate: propagate.cc propagate.h snapshot.o snapshot.h particle.h integrator.o utils.o
+	c++ -o propagate -std=c++11 propagate.cc snapshot.o integrator.o utils.o -Wall -pedantic
 
 test: test.h test.cc snapshot.o particle.h integrator.o
 	c++ -o test -std=c++11 test.cc snapshot.o integrator.o -Wall -pedantic
 
+utils.o: utils.cc utils.h
+	c++ -c utils.cc -std=c++11 -Wall -pedantic
+
 clean:
-	rm snapshot.o integrator.o propagate write read InitCond test
+	rm snapshot.o integrator.o propagate write read InitCond test utils.o

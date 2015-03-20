@@ -2,6 +2,7 @@
 #include "integrator.h"
 #include "snapshot.h"
 #include "particle.h"
+#include "utils.h"
 #include <iostream>
 #include <unordered_map>
 #include <string>
@@ -142,7 +143,7 @@ int main(int argc, char*argv[]) {
 
     //If i is multiple of printIter, print out the result
     if(i%printIter == 0){
-      std::ofstream output(out + std::to_string(i/printIter) + ".dat");
+      std::ofstream output(out + yaNC::padInt(i/printIter, 5) + ".dat");
       snapshot.write(output, format);
       output.close();
     }
